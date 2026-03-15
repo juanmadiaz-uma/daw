@@ -5,7 +5,7 @@ import es.uma.informatica.daw.excepciones.ContactoNoEncontrado;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +21,8 @@ public class ContactoServicio {
     ChatClient chatClient;
     Logger log = LoggerFactory.getLogger(ContactoServicio.class);
 
-    public ContactoServicio(OpenAiChatModel openAiChatModel) {
-        chatClient = ChatClient.create(openAiChatModel);
+    public ContactoServicio(ChatModel geminiChatModel) {
+        chatClient = ChatClient.create(geminiChatModel);
     }
 
     @Tool(name="getAllContactos",description = "Obtiene la lista de todos los contactos")
