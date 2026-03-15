@@ -1,6 +1,7 @@
 package es.uma.informatica.daw.controladores;
 
 import es.uma.informatica.daw.dtos.ContactoDTO;
+import es.uma.informatica.daw.dtos.Mensaje;
 import es.uma.informatica.daw.excepciones.ContactoNoEncontrado;
 import es.uma.informatica.daw.servicios.ContactoServicio;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,12 @@ public class ContactoControlador {
     @PutMapping("/{id}")
     public ResponseEntity<ContactoDTO> modificarContacto(@PathVariable Long id, @RequestBody ContactoDTO contacto) throws Exception {
         return ResponseEntity.ofNullable(servicio.modificarContacto(id, contacto));
+    }
+
+    @PostMapping("/chat")
+    public ResponseEntity<String> contactLLM(@RequestBody Mensaje mensaje) {
+        String response = servicio.contactLLM(mensaje.getPrompt());
+        return ResponseEntity.ok(response);
     }
 
     @ExceptionHandler(ContactoNoEncontrado.class)
