@@ -1,6 +1,8 @@
 package es.uma.informatica.daw.controladores;
 
 import es.uma.informatica.daw.dtos.ContactoDTO;
+import es.uma.informatica.daw.dtos.DtoAndEntityMapper;
+import es.uma.informatica.daw.entidades.Contacto;
 import es.uma.informatica.daw.excepciones.ContactoNoEncontrado;
 import es.uma.informatica.daw.servicios.ContactoServicio;
 import org.springframework.http.HttpStatus;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -24,20 +25,26 @@ public class ContactoControlador {
 
     @GetMapping("")
     public List<ContactoDTO> obtenerTodosContactos() {
-        return servicio.obtenerTodosContactos();
+        return servicio.obtenerTodosContactos()
+                .stream()
+                .map(DtoAndEntityMapper ::toDto)
+                .toList();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ContactoDTO> obtenerUnContacto(@PathVariable Long id) {
-        return ResponseEntity.ofNullable(servicio.obtenerContactoPorId(id));
+        Contacto contacto = servicio.obtenerContactoPorId(id);
+        return ResponseEntity.ok(DtoAndEntityMapper.toDto(contacto));
     }
 
     @PostMapping("")
     public ResponseEntity<ContactoDTO> aniadirContacto(@RequestBody ContactoDTO contacto,
-                                                      UriComponentsBuilder uriBuilder) throws Exception {
-        ContactoDTO aniadido = servicio.aniadirContacto(contacto);
+                                                      UriComponentsBuilder uriBuilder) {
+        Contacto entidad = DtoAndEntityMapper.toEntity(contacto);
+        Contacto aniadido = servicio.aniadirContacto(entidad);
         URI location = uriBuilder.path("/contactos/{id}").buildAndExpand(aniadido.getId()).toUri();
-        return ResponseEntity.created(location).body(aniadido);
+
+        return ResponseEntity.created(location).body(DtoAndEntityMapper.toDto(aniadido));
     }
 
     @DeleteMapping("/{id}")
@@ -47,8 +54,9 @@ public class ContactoControlador {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ContactoDTO> modificarContacto(@PathVariable Long id, @RequestBody ContactoDTO contacto) throws Exception {
-        return ResponseEntity.ofNullable(servicio.modificarContacto(id, contacto));
+    public ResponseEntity<ContactoDTO> modificarContacto(@PathVariable Long id, @RequestBody ContactoDTO contacto) {
+        Contacto entidad = servicio.modificarContacto(id, DtoAndEntityMapper.toEntity(contacto));
+        return ResponseEntity.ok(DtoAndEntityMapper.toDto(entidad));
     }
 
     @ExceptionHandler(ContactoNoEncontrado.class)

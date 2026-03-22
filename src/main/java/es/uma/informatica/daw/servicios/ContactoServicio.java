@@ -1,44 +1,48 @@
 package es.uma.informatica.daw.servicios;
 
 import es.uma.informatica.daw.dtos.ContactoDTO;
+import es.uma.informatica.daw.entidades.Contacto;
 import es.uma.informatica.daw.excepciones.ContactoNoEncontrado;
+import es.uma.informatica.daw.repositorios.ContactoRepositorio;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ContactoServicio {
-    private long nextId = 0L;
+    private ContactoRepositorio repositorio;
 
-    private List<ContactoDTO> contactos = new ArrayList<>();
-
-    public List<ContactoDTO> obtenerTodosContactos(){
-        return contactos;
+    public ContactoServicio(ContactoRepositorio repositorio) {
+        this.repositorio = repositorio;
     }
 
-    public ContactoDTO obtenerContactoPorId(Long id){
-        return contactos.stream().filter(c -> c.getId().equals(id)).findFirst().orElseThrow(ContactoNoEncontrado :: new);
+    public List<Contacto> obtenerTodosContactos(){
+        return repositorio.findAll();
     }
 
-    public ContactoDTO aniadirContacto(ContactoDTO contacto){
-        contacto.setId(++nextId);
-        contactos.add(contacto);
-        return contacto;
+    public Contacto obtenerContactoPorId(Long id) {
+        return repositorio.findById(id).orElseThrow(() -> new ContactoNoEncontrado());
+    }
+
+    public Contacto aniadirContacto(Contacto contacto){
+        contacto.setId(null);
+        return repositorio.save(contacto);
     }
 
     public void eliminarContacto(Long id){
-        ContactoDTO contacto = obtenerContactoPorId(id);
-        contactos.remove(contacto);
+        Contacto contacto = obtenerContactoPorId(id);
+        repositorio.deleteById(id);
     }
 
-    public ContactoDTO modificarContacto(Long id, ContactoDTO contactoNew){
-        ContactoDTO existente = obtenerContactoPorId(id);
+    public Contacto modificarContacto(Long id, Contacto contactoNew){
+        Contacto existente = obtenerContactoPorId(id);
         existente.setNombre(contactoNew.getNombre());
         existente.setApellidos(contactoNew.getApellidos());
         existente.setEmail(contactoNew.getEmail());
         existente.setTelefono(contactoNew.getTelefono());
+        repositorio.save(existente);
         return existente;
     }
 }

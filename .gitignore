@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+daw.mv.db
+daw.trace.db
+h2-2.4.240.jar
