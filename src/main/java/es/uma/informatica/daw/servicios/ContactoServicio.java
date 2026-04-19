@@ -26,6 +26,14 @@ public class ContactoServicio {
         return repositorio.findById(id).orElseThrow(() -> new ContactoNoEncontrado());
     }
 
+    public List<Contacto> obtenerContactosPorNombre(String nombre) {
+        List<Contacto> contactos = repositorio.findByNombre(nombre);
+        if (contactos.isEmpty()) {
+            throw new ContactoNoEncontrado();
+        }
+        return contactos;
+    }
+
     public Contacto aniadirContacto(Contacto contacto){
         contacto.setId(null);
         return repositorio.save(contacto);
